@@ -1,8 +1,9 @@
 import datetime
 
-import torch
 import numpy as np
-from torch.utils.data import Dataset, DataLoader
+import torch
+from torch.utils.data import Dataset
+
 from utils.process import load_seg
 
 torch.manual_seed(3407)

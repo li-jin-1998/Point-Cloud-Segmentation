@@ -1,5 +1,5 @@
-import os
 import glob
+import os
 import random
 
 import pyvista as pv
@@ -50,6 +50,5 @@ if __name__ == '__main__':
     pl = pv.Plotter(shape=(1, 3))
     pl.set_background([0.9, 0.9, 0.9])
     pl.add_key_event("d", toggle_vis)
-    pl.add_key_event("q", pl.close)
     toggle_vis(0)
     pl.show()

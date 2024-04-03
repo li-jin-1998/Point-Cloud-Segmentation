@@ -1,23 +1,21 @@
+import argparse
+import os
 import shutil
 import sys
-
-import os
-import argparse
 from datetime import datetime
-from tqdm import tqdm
-import numpy as np
-from sklearn.metrics import confusion_matrix
-from sklearn.neighbors import BallTree
-
-import torch
-import torch.utils.data
-import torch.nn.functional as F
-
-import utils.metrics as metrics
-from utils.process import load_seg, save_ply_property
 
 import convpoint.knn.cpp.nearest_neighbors as nearest_neighbors
+import numpy as np
+import torch
+import torch.nn.functional as F
+import torch.utils.data
+from sklearn.metrics import confusion_matrix
+from sklearn.neighbors import BallTree
+from tqdm import tqdm
+
+import utils.metrics as metrics
 from dataset import TeethDataset
+from utils.process import load_seg, save_ply_property
 
 
 def count_parameters(model):
@@ -131,11 +129,6 @@ def train(args):
 
             loss = F.cross_entropy(outputs.view(-1, N_CLASSES), seg.view(-1))
 
-            # loss = 0
-            # for i in range(pts.size(0)):
-            #     # get the number of part for the shape
-            #     object_label = labels[indices[i]]
-            #     loss = loss + weights[object_label] * F.cross_entropy(outputs[i].view(-1, N_CLASSES), seg[i].view(-1))
             train_loss.append(loss.item())
             loss.backward()
             optimizer.step()
@@ -282,42 +275,6 @@ def val(args):
             coordinates = pv.read(input_filelist[i]).points
             assert (data_num[i] == len(coordinates))
             save_ply_property(np.array(coordinates), np.array(predictions[i]), file_list[i])
-            # data_utils.save_ply_property(ds[i][0], predictions[i], 6,
-            #                              output_ply_filelist[i])
-            # np.savetxt(file_list[i].replace('ply', 'txt'), predictions[i], fmt='%d')
-
-    # def scores_from_predictions(predictions):
-    #
-    #     shape_ious = {cat[0]: [] for cat in category_list}
-    #     for shape_id, prediction in enumerate(predictions):
-    #
-    #         segp = prediction
-    #         cat = label[shape_id]
-    #         category = category_list[cat][0]
-    #         part_start, part_end = category_range[category]
-    #         part_nbr = part_end - part_start
-    #         point_num = data_num[shape_id]
-    #         segl = label_test[shape_id][:point_num] - part_start
-    #
-    #         part_ious = [0.0 for _ in range(part_nbr)]
-    #         for l in range(part_nbr):
-    #             if (np.sum(segl == l) == 0) and (np.sum(segp == l) == 0):  # part is not present, no prediction as well
-    #                 part_ious[l] = 1.0
-    #             else:
-    #                 part_ious[l] = np.sum((segl == l) & (segp == l)) / float(np.sum((segl == l) | (segp == l)))
-    #         shape_ious[category].append(np.mean(part_ious))
-    #
-    #     all_shape_ious = []
-    #     for cat in shape_ious.keys():
-    #         for iou in shape_ious[cat]:
-    #             all_shape_ious.append(iou)
-    #         shape_ious[cat] = np.mean(shape_ious[cat])
-    #     print(len(all_shape_ious))
-    #     mean_shape_ious = np.mean(list(shape_ious.values()))
-    #     for cat in sorted(shape_ious.keys()):
-    #         print('eval mIoU of %s:\t %f' % (cat, shape_ious[cat]))
-    #     print('eval mean mIoU: %f' % (mean_shape_ious))
-    #     print('eval mean mIoU (all shapes): %f' % (np.mean(all_shape_ious)))
 
 
 def main():
