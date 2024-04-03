@@ -21,7 +21,5 @@ print(points.shape, colors.shape)
 
 point_cloud = o3d.geometry.PointCloud()
 point_cloud.points = o3d.utility.Vector3dVector(points)
-# point_cloud.colors = o3d.utility.Vector3dVector(colors)
-# print(point_cloud.colors)
 
 o3d.visualization.draw_geometries([point_cloud])

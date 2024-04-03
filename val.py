@@ -1,6 +1,6 @@
+import datetime
 import os
 import time
-import datetime
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
@@ -8,7 +8,7 @@ import torch
 import torch.utils.data
 
 from utils.train_and_eval import evaluate
-from parse_args import parse_args, get_model
+from parse_args import parse_args, get_model, get_best_weight_path
 
 from dataset import TeethDataset
 
@@ -19,12 +19,12 @@ def val():
 
     print("Creating network...")
     model = get_model(args)
-    weights_path = "save_weights/{}_{}_best_model.pth".format(args.arch, args.train_with_color)
+    weights_path = get_best_weight_path(args)
     print(weights_path)
     model.load_state_dict(torch.load(weights_path, map_location='cpu')['model'])
     start_time = time.time()
 
-    batch_size = args.batch_size*2
+    batch_size = args.batch_size * 2
     num_workers = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])
     val_dataset = TeethDataset(os.path.join(args.data_path, 'test_color.h5'), num_points=args.num_points,
                                num_iter_per_shape=args.num_trees, train_with_color=args.train_with_color)

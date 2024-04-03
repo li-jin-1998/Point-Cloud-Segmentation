@@ -1,7 +1,18 @@
-import torch
 import argparse
 
+import torch
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def get_best_weight_path(args):
+    weights_path = "save_weights/{}_{}_{}_best_model.pth".format(args.arch, args.train_with_color, args.num_points)
+    return weights_path
+
+
+def get_latest_weight_path(args):
+    weights_path = "save_weights/{}_{}_{}_latest_model.pth".format(args.arch, args.train_with_color, args.num_points)
+    return weights_path
 
 
 def get_model(args):
@@ -25,7 +36,7 @@ def parse_args():
     parser.add_argument("--data_path", default='/mnt/algo_storage_server/PointCloudSeg/Dataset', help="root")
     # exclude background
     parser.add_argument("--num_classes", default=4, type=int)
-    parser.add_argument("--num_points", default=5000, type=int)
+    parser.add_argument("--num_points", default=10000, type=int)
     parser.add_argument("--train_with_color", default=0, type=bool)
     parser.add_argument("--num_trees", default=1, type=int)
     parser.add_argument("--device", default="cuda", help="training device")

@@ -1,24 +1,23 @@
-import glob
 import os
 import random
 import shutil
 import time
-import torch
-import tqdm
+
+import convpoint.knn.cpp.nearest_neighbors as nearest_neighbors
 import numpy as np
 import pyvista as pv
-
-from parse_args import parse_args, get_model
-import convpoint.knn.cpp.nearest_neighbors as nearest_neighbors
-from utils.process import save_ply_property
-
+import torch
+import tqdm
 from sklearn.metrics import confusion_matrix
+
 import utils.metrics as metrics
+from parse_args import parse_args, get_model, get_best_weight_path
+from utils.process import save_ply_property
 
 green_to_label = {255: 2, 192: 3, 129: 1, 64: 0}
 
 
-def nearest_correspondance(pts_src, pts_dest, data_src, K=1):
+def nearest_correspondence(pts_src, pts_dest, data_src, K=1):
     # start = time.time()
     indices = nearest_neighbors.knn(pts_src.copy(), pts_dest.copy(), K, omp=True)
     if K == 1:
@@ -50,7 +49,7 @@ def main():
 
     # create model
     model = get_model(args)
-    weights_path = "save_weights/{}_{}_best_model.pth".format(args.arch, args.train_with_color)
+    weights_path = get_best_weight_path(args)
     # load weights
     print(weights_path)
     model.load_state_dict(torch.load(weights_path, map_location='cpu')['model'])
@@ -101,7 +100,7 @@ def main():
             # iou = metrics.stats_iou_per_class(cm)[0]
 
             # interpolate to original points
-            prediction = nearest_correspondance(pts.cpu().numpy(), ply_data[0], output)
+            prediction = nearest_correspondence(pts.cpu().numpy(), ply_data[0], output)
             prediction = prediction.argmax(1).cpu().numpy()
 
             cm = confusion_matrix(labels.flatten(), prediction.flatten(), labels=list(range(args.num_classes)))

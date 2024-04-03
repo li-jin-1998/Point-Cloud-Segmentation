@@ -1,6 +1,6 @@
+import datetime
 import os
 import time
-import datetime
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
@@ -8,7 +8,7 @@ import torch
 import torch.utils.data
 
 from utils.train_and_eval import train_one_epoch, create_lr_scheduler, evaluate
-from parse_args import parse_args, get_model
+from parse_args import parse_args, get_model, get_best_weight_path, get_latest_weight_path
 
 from dataset import TeethDataset
 
@@ -75,6 +75,7 @@ def train():
         print('-' * 20)
         print('Epoch {}/{} lr {:.6f}'.format(epoch_num, args.epochs, lr))
         print('-' * 20)
+
         train_loss, oa, aa, iou, lr = train_one_epoch(epoch_num, model, optimizer, train_loader, device,
                                                       args.num_classes, lr_scheduler=lr_scheduler, scaler=scaler)
 
@@ -94,7 +95,7 @@ def train():
         logs.write(train_info + "\n\n")
         logs.flush()
 
-        torch.save(model.state_dict(), "save_weights/{}_{}_latest_model.pth".format(args.arch, args.train_with_color))
+        torch.save(model.state_dict(), get_latest_weight_path(args))
         if args.save_best is True:
             if best_miou <= val_miou:
                 best_miou = val_miou
@@ -116,7 +117,8 @@ def train():
                      "args": args}
         if args.amp:
             save_file["scaler"] = scaler.state_dict()
-        torch.save(save_file, "save_weights/{}_{}_best_model.pth".format(args.arch, args.train_with_color))
+        torch.save(save_file, get_best_weight_path(args))
+
     best_info = f"[epoch: {best_epoch}]\n" \
                 f"best_oa: {best_oa * 100:.2f}\n" \
                 f"best_aa: {best_aa * 100:.2f}\n" \
@@ -137,4 +139,6 @@ def train():
 if __name__ == '__main__':
     if not os.path.exists("./save_weights"):
         os.mkdir("./save_weights")
+    if not os.path.exists("./log"):
+        os.mkdir("./log")
     train()
