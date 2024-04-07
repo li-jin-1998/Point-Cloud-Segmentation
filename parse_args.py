@@ -37,7 +37,7 @@ def parse_args():
     # exclude background
     parser.add_argument("--num_classes", default=4, type=int)
     parser.add_argument("--num_points", default=10000, type=int)
-    parser.add_argument("--train_with_color", default=0, type=bool)
+    parser.add_argument("--train_with_color", default=1, type=bool)
     parser.add_argument("--num_trees", default=1, type=int)
     parser.add_argument("--device", default="cuda", help="training device")
     parser.add_argument("-b", "--batch_size", default=16, type=int)

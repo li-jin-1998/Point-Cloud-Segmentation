@@ -1,8 +1,7 @@
 import datetime
-
-import matplotlib.pyplot as plt
 import os
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -23,17 +22,18 @@ def loss_plot(args, train_loss, val_loss):
     plt.savefig(save_loss, dpi=300)
 
 
-def metrics_plot(arg, name, *args):
+def metrics_plot(arg, name, *value):
     num = arg.epochs
     names = name.split('&')
-    metrics_value = args
+    metrics_value = value
     i = 0
     x = [i for i in range(1, num + 1)]
 
     plot_save_path = r'./log/plot/'
     if not os.path.exists(plot_save_path):
         os.makedirs(plot_save_path)
-    save_metrics = "{}_{}_{}.png".format(args.arch, arg.epochs, datetime.datetime.now().strftime("%Y%m%d-%H%M"))
+    save_metrics = plot_save_path + "{}_{}_{}.png".format(arg.arch, arg.epochs,
+                                                          datetime.datetime.now().strftime("%Y%m%d-%H%M"))
     plt.figure()
     for l in metrics_value:
         plt.plot(x, l, 'b', label=str(names[i]))

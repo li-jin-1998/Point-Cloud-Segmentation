@@ -8,9 +8,7 @@ import numpy as np
 import pyvista as pv
 import torch
 import tqdm
-from sklearn.metrics import confusion_matrix
 
-import utils.metrics as metrics
 from parse_args import parse_args, get_model, get_best_weight_path
 from utils.process import save_ply_property
 
@@ -41,7 +39,7 @@ def read_ply(path, is_label=False):
         return points, colors, mesh.n_points
 
 
-def main():
+def predict():
     args = parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -103,11 +101,13 @@ def main():
             prediction = nearest_correspondence(pts.cpu().numpy(), ply_data[0], output)
             prediction = prediction.argmax(1).cpu().numpy()
 
-            cm = confusion_matrix(labels.flatten(), prediction.flatten(), labels=list(range(args.num_classes)))
-
-            oa = metrics.stats_overall_accuracy(cm)
-            aa = metrics.stats_accuracy_per_class(cm)[0]
-            iou = metrics.stats_iou_per_class(cm)[0]
+            # cm = confusion_matrix(labels.flatten(), prediction.flatten(), labels=list(range(args.num_classes)))
+            #
+            # oa = metrics.stats_overall_accuracy(cm)
+            # aa = metrics.stats_accuracy_per_class(cm)[0]
+            # iou = metrics.stats_iou_per_class(cm)[0]
+            from diff_ply import compute_metrics
+            oa, aa, iou = compute_metrics(labels, prediction, args.num_classes)
 
             OA.append(oa)
             AA.append(aa)
@@ -124,4 +124,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    predict()
