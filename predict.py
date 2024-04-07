@@ -1,42 +1,15 @@
 import os
 import random
-import shutil
 import time
 
-import convpoint.knn.cpp.nearest_neighbors as nearest_neighbors
 import numpy as np
-import pyvista as pv
 import torch
 import tqdm
 
+import path_manager
 from parse_args import parse_args, get_model, get_best_weight_path
+from utils.functions import read_ply, nearest_correspondence, compute_metrics
 from utils.process import save_ply_property
-
-green_to_label = {255: 2, 192: 3, 129: 1, 64: 0}
-
-
-def nearest_correspondence(pts_src, pts_dest, data_src, K=1):
-    # start = time.time()
-    indices = nearest_neighbors.knn(pts_src.copy(), pts_dest.copy(), K, omp=True)
-    if K == 1:
-        indices = indices.ravel()
-        data_dest = data_src[indices]
-    else:
-        data_dest = data_src[indices].mean(1)
-    return data_dest
-
-
-def read_ply(path, is_label=False):
-    mesh = pv.read(path)
-    points = mesh.points
-    colors = mesh.active_scalars
-    if is_label:
-        labels = [green_to_label[i[1]] for i in colors]
-        labels = np.array(labels).T
-
-        return points, colors, labels, mesh.n_points
-    else:
-        return points, colors, mesh.n_points
 
 
 def predict():
@@ -49,19 +22,15 @@ def predict():
     model = get_model(args)
     weights_path = get_best_weight_path(args)
     # load weights
-    print(weights_path)
     model.load_state_dict(torch.load(weights_path, map_location='cpu')['model'])
     model.to(device)
     # torch.save(model.state_dict(), "save_weights/{}_predict_model.pth".format(args.arch))
     dst = '/mnt/algo_storage_server/PointCloudSeg/Dataset/test.txt'
     x = random.randint(1, 5000)
     predict_paths = [os.path.join(os.path.dirname(dst), 'data', line.strip()) for line in open(dst)][x:x + 1000]
-    # print(predict_paths)
 
     result_path = './visualization'
-    if os.path.exists(result_path):
-        shutil.rmtree(result_path)
-    os.mkdir(result_path)
+    path_manager.safe_create_directory(result_path)
 
     OA = []
     AA = []
@@ -72,7 +41,6 @@ def predict():
     with torch.no_grad():
         for path in tqdm.tqdm(predict_paths):
             labels = read_ply(path.replace('.ply', '_label.ply'), is_label=True)[2]
-            # print(labels)
             ply_data = read_ply(path)
             pts = ply_data[0]
             choice = np.random.choice(ply_data[2], args.num_points, replace=True)
@@ -91,22 +59,10 @@ def predict():
             cls = torch.from_numpy(cls).float().to(device)
             output = model(torch.unsqueeze(cls, dim=0), torch.unsqueeze(pts, dim=0)).squeeze(0)
 
-            # cm = confusion_matrix(labels[choice].flatten(), output.argmax(1).flatten().cpu(), labels=list(range(args.num_classes)))
-            #
-            # oa = metrics.stats_overall_accuracy(cm)
-            # aa = metrics.stats_accuracy_per_class(cm)[0]
-            # iou = metrics.stats_iou_per_class(cm)[0]
-
             # interpolate to original points
             prediction = nearest_correspondence(pts.cpu().numpy(), ply_data[0], output)
             prediction = prediction.argmax(1).cpu().numpy()
 
-            # cm = confusion_matrix(labels.flatten(), prediction.flatten(), labels=list(range(args.num_classes)))
-            #
-            # oa = metrics.stats_overall_accuracy(cm)
-            # aa = metrics.stats_accuracy_per_class(cm)[0]
-            # iou = metrics.stats_iou_per_class(cm)[0]
-            from diff_ply import compute_metrics
             oa, aa, iou = compute_metrics(labels, prediction, args.num_classes)
 
             OA.append(oa)
@@ -115,7 +71,6 @@ def predict():
 
             save_ply_property(ply_data[0], prediction,
                               os.path.join(result_path, os.path.basename(path)))
-            # print(os.path.join(result_path, os.path.basename(path)))
 
     print("oa:{:.2f} aa:{:.2f} miou:{:.2f}".format(np.mean(OA) * 100, np.mean(AA) * 100, np.mean(IOU) * 100))
 

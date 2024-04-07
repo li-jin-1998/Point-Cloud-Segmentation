@@ -4,15 +4,14 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
+plot_save_path = r'/home/lij/PycharmProjects/Point-Cloud-Segmentation/log/plot/'
 
 def loss_plot(args, train_loss, val_loss):
     num = args.epochs
     x = [i for i in range(1, num + 1)]
-    plot_save_path = r'./log/plot/'
-    if not os.path.exists(plot_save_path):
-        os.makedirs(plot_save_path)
-    save_loss = plot_save_path + str(args.arch) + '_' + str(
-        args.epochs) + '_loss.png'
+    os.makedirs(plot_save_path, exist_ok=True)
+
+    save_loss = os.path.join(plot_save_path, f"{args.arch}_{args.epochs}_loss.png")
     plt.figure()
     plt.xlim([1, num + 1])
     plt.ylim([np.min(val_loss) / 2, np.max(val_loss) + 0.1])
@@ -29,9 +28,7 @@ def metrics_plot(arg, name, *value):
     i = 0
     x = [i for i in range(1, num + 1)]
 
-    plot_save_path = r'./log/plot/'
-    if not os.path.exists(plot_save_path):
-        os.makedirs(plot_save_path)
+    os.makedirs(plot_save_path, exist_ok=True)
     save_metrics = plot_save_path + "{}_{}_{}.png".format(arg.arch, arg.epochs,
                                                           datetime.datetime.now().strftime("%Y%m%d-%H%M"))
     plt.figure()

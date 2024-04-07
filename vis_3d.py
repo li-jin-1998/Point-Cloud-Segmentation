@@ -1,5 +1,5 @@
-import torch
 import numpy as np
+import torch
 
 """
 2022@PointNeXt, 
@@ -33,7 +33,6 @@ def vis_points(points, colors=None, labels=None, color_map='Paired', opacity=1.0
         colors ([type], optional): [description]. Defaults to None.
     """
     import pyvista as pv
-    import numpy as np
     from pyvista.plotting import themes
     my_theme = themes.DocumentTheme()
     my_theme.color = 'black'
@@ -162,9 +161,7 @@ if __name__ == '__main__':
     import plyfile
 
     path = './test.ply'
-    # v = read_obj(path)
     plydata = plyfile.PlyData.read(path)
-    print(plydata)
     # Get the number of points in the point cloud
     num_points = plydata['vertex'].count
     print("Number of points:", num_points)
@@ -180,7 +177,4 @@ if __name__ == '__main__':
     print("Point coordinates:")
     print(points.shape)
     print(colors.shape)
-    # ply_data = [[float(value) for value in xyz.split(' ')]
-    #                for xyz in open(path, 'r') if len(xyz.split(' ')) == 3]
-    # print(ply_data)
     vis_points(points, colors)

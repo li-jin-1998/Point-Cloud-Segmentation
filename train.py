@@ -2,15 +2,14 @@ import datetime
 import os
 import time
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-
 import torch
 import torch.utils.data
 
-from utils.train_and_eval import train_one_epoch, create_lr_scheduler, evaluate
-from parse_args import parse_args, get_model, get_best_weight_path, get_latest_weight_path
-
 from dataset import TeethDataset
+from parse_args import parse_args, get_model, get_best_weight_path, get_latest_weight_path
+from utils.train_and_eval import train_one_epoch, create_lr_scheduler, evaluate
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 
 def count_parameters(model):
@@ -23,7 +22,6 @@ def train():
 
     print("Creating network...")
     model = get_model(args)
-    model.cuda()
     print("parameters", count_parameters(model))
 
     batch_size = args.batch_size
@@ -50,7 +48,7 @@ def train():
     scaler = torch.cuda.amp.GradScaler() if args.amp else None
 
     if args.resume:
-        weights_path = "save_weights/{}_{}_best_model.pth".format(args.arch, args.train_with_color)
+        weights_path = get_best_weight_path(args)
         checkpoint = torch.load(weights_path, map_location='cpu')
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
@@ -84,29 +82,29 @@ def train():
         train_losses.append(train_loss)
         val_losses.append(val_loss)
         mious.append(val_miou)
-        # write into txt
+
         # 记录每个epoch对应的train_loss、lr以及验证集各指标
         train_info = f"[epoch: {epoch_num}]\n" \
                      f"train_loss: {train_loss:.4f}\n" \
                      f"oa: {oa:.4f}\n" \
                      f"aa: {aa:.4f}\n" \
                      f"iou: {iou:.4f}\n"
+
         # write the logs
         logs.write(train_info + "\n\n")
         logs.flush()
 
         torch.save(model.state_dict(), get_latest_weight_path(args))
         if args.save_best is True:
+            format_string = "best epoch:{} oa:{:.2f} aa:{:.2f} miou:{:.2f}"
             if best_miou <= val_miou:
                 best_miou = val_miou
                 best_oa = val_oa
                 best_aa = val_aa
                 best_epoch = epoch_num
-                print("best epoch:{} oa:{:.2f} aa:{:.2f} miou:{:.2f}".format(best_epoch, best_oa * 100, best_aa * 100,
-                                                                             best_miou * 100))
+                print(format_string.format(best_epoch, best_oa * 100, best_aa * 100, best_miou * 100))
             else:
-                print("best epoch:{} oa:{:.2f} aa:{:.2f} miou:{:.2f}".format(best_epoch, best_oa * 100, best_aa * 100,
-                                                                             best_miou * 100))
+                print(format_string.format(best_epoch, best_oa * 100, best_aa * 100, best_miou * 100))
                 continue
 
         # save the model
@@ -137,8 +135,6 @@ def train():
 
 
 if __name__ == '__main__':
-    if not os.path.exists("./save_weights"):
-        os.mkdir("./save_weights")
-    if not os.path.exists("./log"):
-        os.mkdir("./log")
+    os.makedirs("./save_weights", exist_ok=True)
+    os.makedirs("./log", exist_ok=True)
     train()

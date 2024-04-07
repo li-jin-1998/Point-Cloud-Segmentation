@@ -4,8 +4,8 @@ import numpy as np
 import torch
 import tqdm
 from torch.nn.functional import cross_entropy
-from sklearn.metrics import confusion_matrix
-import utils.metrics as metrics
+
+from utils.functions import compute_metrics
 
 
 def criterion(output, target, loss_weight=None, num_classes: int = 3, label_smoothing: float = 0.1):
@@ -17,7 +17,6 @@ def criterion(output, target, loss_weight=None, num_classes: int = 3, label_smoo
 
 def evaluate(epoch_num, model, data_loader, device, num_classes):
     model.eval()
-    cm = np.zeros((num_classes, num_classes))
     val_loss = []
     OA = []
     AA = []
@@ -36,12 +35,7 @@ def evaluate(epoch_num, model, data_loader, device, num_classes):
             val_loss.append(loss.item())
             output_np = output.argmax(2)
 
-            cm = confusion_matrix(lbs.flatten().cpu(), output_np.flatten().cpu(), labels=list(range(num_classes)))
-            # cm += cm_
-
-            oa = metrics.stats_overall_accuracy(cm)
-            aa = metrics.stats_accuracy_per_class(cm)[0]
-            iou = metrics.stats_iou_per_class(cm)[0]
+            oa, aa, iou = compute_metrics(lbs.flatten().cpu(), output_np.flatten().cpu(), num_classes)
 
             OA.append(oa)
             AA.append(aa)
@@ -57,8 +51,6 @@ def evaluate(epoch_num, model, data_loader, device, num_classes):
 def train_one_epoch(epoch_num, model, optimizer, data_loader, device, num_classes,
                     lr_scheduler, scaler=None):
     model.train()
-
-    cm = np.zeros((num_classes, num_classes))
 
     train_loss = []
     OA = []
@@ -88,13 +80,7 @@ def train_one_epoch(epoch_num, model, optimizer, data_loader, device, num_classe
         train_loss.append(loss.item())
 
         output_np = output.argmax(2)
-        cm = confusion_matrix(lbs.flatten().cpu(), output_np.flatten().cpu(), labels=list(range(num_classes)))
-
-        # cm += cm_
-
-        oa = metrics.stats_overall_accuracy(cm)
-        aa = metrics.stats_accuracy_per_class(cm)[0]
-        iou = metrics.stats_iou_per_class(cm)[0]
+        oa, aa, iou = compute_metrics(lbs.flatten().cpu(), output_np.flatten().cpu(), num_classes)
 
         OA.append(oa)
         AA.append(aa)

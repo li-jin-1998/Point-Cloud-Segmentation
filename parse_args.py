@@ -2,16 +2,20 @@ import argparse
 
 import torch
 
+from networks.network_seg import SegSmall, SegBig
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def get_best_weight_path(args):
     weights_path = "save_weights/{}_{}_{}_best_model.pth".format(args.arch, args.train_with_color, args.num_points)
+    print(weights_path)
     return weights_path
 
 
 def get_latest_weight_path(args):
     weights_path = "save_weights/{}_{}_{}_latest_model.pth".format(args.arch, args.train_with_color, args.num_points)
+    print(weights_path)
     return weights_path
 
 
@@ -21,36 +25,44 @@ def get_model(args):
           .format(args.arch, args.epochs, args.batch_size, args.num_points))
     print('**************************')
     if args.arch == "SegSmall":
-        from networks.network_seg import SegSmall
-        model = SegSmall(input_channels=3 if args.train_with_color else 1, output_channels=args.num_classes).to(device)
+        return SegSmall(input_channels=3 if args.train_with_color else 1, output_channels=args.num_classes).to(device)
     if args.arch == "SegBig":
-        from networks.network_seg import SegBig
-        model = SegBig(input_channels=3 if args.train_with_color else 1, output_channels=args.num_classes).to(device)
-    return model
+        return SegBig(input_channels=3 if args.train_with_color else 1, output_channels=args.num_classes).to(device)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="pytorch training")
+
+    # Model architecture
     parser.add_argument('--arch', '-a', metavar='ARCH', default='SegBig',
-                        help='SegSmall/SegBig')
-    parser.add_argument("--data_path", default='/mnt/algo_storage_server/PointCloudSeg/Dataset', help="root")
-    # exclude background
-    parser.add_argument("--num_classes", default=4, type=int)
-    parser.add_argument("--num_points", default=10000, type=int)
-    parser.add_argument("--train_with_color", default=1, type=bool)
-    parser.add_argument("--num_trees", default=1, type=int)
-    parser.add_argument("--device", default="cuda", help="training device")
-    parser.add_argument("-b", "--batch_size", default=16, type=int)
-    parser.add_argument("--epochs", default=200, type=int, metavar="N",
-                        help="number of total epochs to train")
+                        help='Segmentation model architecture (SegSmall/SegBig)')
+
+    # Data path with environment variable as default
+    parser.add_argument("--data_path", default='/mnt/algo_storage_server/PointCloudSeg/Dataset',
+                        help="root path to the dataset")
+
+    # Training parameters
+    parser.add_argument("--num_classes", default=4, type=int, help="number of classes excluding background")
+    parser.add_argument("--num_points", default=10000, type=int, help="number of points to train with")
+    # Improved clarity with explicit boolean default
+    parser.add_argument("--train_with_color", default=1, type=int, help="whether to train with color")
+    parser.add_argument("--num_trees", default=1, type=int, help="number of trees in the random forest")
+
+    # Device configuration
+    parser.add_argument("--device", default="cuda", help="training device (e.g., cuda)")
+
+    # Training configuration
+    parser.add_argument("-b", "--batch_size", default=16, type=int, help="batch size for training")
+    parser.add_argument("--epochs", default=200, type=int, metavar="N", help="number of total epochs to train")
     parser.add_argument('--lr', default=1e-3, type=float, help='initial learning rate')
-    parser.add_argument('--resume', default=0, help='resume from checkpoint')
-    parser.add_argument('--start_epoch', default=1, type=int, metavar='N',
-                        help='start epoch')
-    parser.add_argument('--save_best', default=True, type=bool, help='only save best dice weights')
-    # Mixed precision training parameters
-    parser.add_argument("--amp", default=False, type=bool,
-                        help="Use torch.cuda.amp for mixed precision training")
+    parser.add_argument('--resume', default=1, help='resume from checkpoint')
+    parser.add_argument('--start_epoch', default=1, type=int, metavar='N', help='start epoch')
+
+    # Model saving configuration
+    parser.add_argument('--save_best', default=True, type=bool, help='only save the best dice weights')
+
+    # Mixed precision training
+    parser.add_argument("--amp", default=False, type=bool, help="Use torch.cuda.amp for mixed precision training")
 
     args = parser.parse_args()
 
@@ -58,5 +70,4 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    args = parse_args()
-    model = get_model(args)
+    model = get_model(parse_args())
