@@ -2,14 +2,14 @@ import datetime
 import os
 import time
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
 import torch
 import torch.utils.data
 
 from dataset import TeethDataset
-from parse_args import parse_args, get_model, get_best_weight_path, get_latest_weight_path
+from parse_args import parse_args, get_model, get_best_weight_path, get_latest_weight_path, get_device
 from utils.train_and_eval import train_one_epoch, create_lr_scheduler, evaluate
-
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 
 def count_parameters(model):
@@ -18,7 +18,7 @@ def count_parameters(model):
 
 def train():
     args = parse_args()
-    device = torch.device(args.device if torch.cuda.is_available() else "cpu")
+    device = get_device()
 
     print("Creating network...")
     model = get_model(args)
@@ -90,8 +90,14 @@ def train():
                      f"aa: {aa:.4f}\n" \
                      f"iou: {iou:.4f}\n"
 
+        val_info = f"[epoch: {epoch_num}]\n" \
+                   f"val_loss: {val_loss:.4f}\n" \
+                   f"val_oa: {val_oa:.4f}\n" \
+                   f"val_aa: {val_aa:.4f}\n" \
+                   f"val_miou: {val_miou:.4f}\n"
+
         # write the logs
-        logs.write(train_info + "\n\n")
+        logs.write(train_info + val_info + "\n\n")
         logs.flush()
 
         torch.save(model.state_dict(), get_latest_weight_path(args))

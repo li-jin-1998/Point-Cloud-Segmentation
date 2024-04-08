@@ -4,7 +4,11 @@ import torch
 
 from networks.network_seg import SegSmall, SegBig
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+def get_device():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("using {} device.".format(device))
+    return device
 
 
 def get_best_weight_path(args):
@@ -25,9 +29,11 @@ def get_model(args):
           .format(args.arch, args.epochs, args.batch_size, args.num_points))
     print('**************************')
     if args.arch == "SegSmall":
-        return SegSmall(input_channels=3 if args.train_with_color else 1, output_channels=args.num_classes).to(device)
+        return SegSmall(input_channels=3 if args.train_with_color else 1, output_channels=args.num_classes).to(
+            get_device())
     if args.arch == "SegBig":
-        return SegBig(input_channels=3 if args.train_with_color else 1, output_channels=args.num_classes).to(device)
+        return SegBig(input_channels=3 if args.train_with_color else 1, output_channels=args.num_classes).to(
+            get_device())
 
 
 def parse_args():
@@ -47,9 +53,6 @@ def parse_args():
     # Improved clarity with explicit boolean default
     parser.add_argument("--train_with_color", default=1, type=int, help="whether to train with color")
     parser.add_argument("--num_trees", default=1, type=int, help="number of trees in the random forest")
-
-    # Device configuration
-    parser.add_argument("--device", default="cuda", help="training device (e.g., cuda)")
 
     # Training configuration
     parser.add_argument("-b", "--batch_size", default=16, type=int, help="batch size for training")

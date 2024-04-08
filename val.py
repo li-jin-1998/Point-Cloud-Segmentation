@@ -8,20 +8,20 @@ import torch
 import torch.utils.data
 
 from utils.train_and_eval import evaluate
-from parse_args import parse_args, get_model, get_best_weight_path
+from parse_args import parse_args, get_model, get_best_weight_path, get_device
 
 from dataset import TeethDataset
 
 
 def val():
     args = parse_args()
-    device = torch.device(args.device if torch.cuda.is_available() else "cpu")
+    device = get_device()
 
     print("Creating network...")
     model = get_model(args)
     weights_path = get_best_weight_path(args)
-    print(weights_path)
     model.load_state_dict(torch.load(weights_path, map_location='cpu')['model'])
+    model.to(device)
     start_time = time.time()
 
     batch_size = args.batch_size * 2
@@ -32,12 +32,13 @@ def val():
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False,
                                              num_workers=num_workers)
 
-    val_loss, oa, aa, iou = evaluate(0, model, val_loader, device, args.num_classes)
+    val_loss, val_oa, val_oa, val_miou = evaluate(0, model, val_loader, device, args.num_classes)
 
-    print("val loss:{:.4f}".format(val_loss))
-    print("val oa:{:.2f}".format(oa * 100))
-    print("val aa:{:.2f}".format(aa * 100))
-    print("val iou:{:.2f}".format(iou * 100))
+    val_info = f"val_loss: {val_loss:.4f}\n" \
+               f"val_oa: {val_oa:.4f}\n" \
+               f"val_aa: {val_oa:.4f}\n" \
+               f"val_miou: {val_miou:.4f}\n"
+    print(val_info)
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
@@ -46,4 +47,3 @@ def val():
 
 if __name__ == '__main__':
     val()
-
