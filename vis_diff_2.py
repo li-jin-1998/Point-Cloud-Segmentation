@@ -10,7 +10,7 @@ class VisualizationMeshes:
     Visualize multiple meshes
     """
 
-    def __init__(self, pred_paths, titles, num_meshes=3, point_size=3, opacity=1.0):
+    def __init__(self, pred_paths, titles, point_size=3, opacity=1.0):
         self.pl = None
         self.meshes = []
         self.titles = titles
@@ -18,7 +18,7 @@ class VisualizationMeshes:
         self.pred_path = None
         self.point_size = point_size
         self.opacity = opacity
-        self.num_meshes = num_meshes
+        self.num_meshes = len(titles)
         self.init_plotter()
 
     def init_plotter(self):
@@ -55,10 +55,12 @@ class VisualizationMeshes:
         case_id = random.randint(0, len(self.pred_paths) - 1)
         self.pred_path = os.path.join(self.pred_paths[case_id])
         print('Case {}:{}'.format(case_id, self.pred_path))
-        src_path = os.path.join(src, os.path.basename(self.pred_path))
+        src_path = os.path.join('/mnt/algo_storage_server/PointCloudSeg/Dataset/data/',
+                                os.path.basename(self.pred_path))
         gt_path = src_path.replace('.ply', '_label.ply')
+        diff_path = os.path.join('./diff', os.path.basename(gt_path))
 
-        paths = [src_path, gt_path, self.pred_path]
+        paths = [src_path, gt_path, self.pred_path, diff_path]
         for path in paths:
             if not os.path.exists(path):
                 print('The file {} not exist.'.format(path))
@@ -68,10 +70,9 @@ class VisualizationMeshes:
 
 
 if __name__ == '__main__':
-    src = '/mnt/algo_storage_server/PointCloudSeg/Dataset/data/'
     result_paths = glob.glob(r'./visualization/*')
     print(len(result_paths))
     preds = [p for p in result_paths if 'ply' in p and 'label' not in p]
 
-    vis = VisualizationMeshes(pred_paths=preds, titles=["Src", "Gt", "Pred"])
-    vis.show()
+    vis = VisualizationMeshes(pred_paths=preds, titles=["Src", "Gt", "Pred", "Diff"])
+    vis.show(0)

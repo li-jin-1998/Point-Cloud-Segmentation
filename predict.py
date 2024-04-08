@@ -27,7 +27,8 @@ def predict():
     # torch.save(model.state_dict(), "save_weights/{}_predict_model.pth".format(args.arch))
     dst = '/mnt/algo_storage_server/PointCloudSeg/Dataset/test.txt'
     x = random.randint(1, 5000)
-    predict_paths = [os.path.join(os.path.dirname(dst), 'data', line.strip()) for line in open(dst)][x:x + 1000]
+    predict_paths = [os.path.join(os.path.dirname(dst),
+                                  'data', line.strip()) for line in open(dst)][::10]  # [x:x + 1000]
 
     result_path = './visualization'
     path_manager.safe_create_directory(result_path)
@@ -69,8 +70,7 @@ def predict():
             AA.append(aa)
             IOU.append(iou)
 
-            save_ply_property(ply_data[0], prediction,
-                              os.path.join(result_path, os.path.basename(path)))
+            save_ply_property(ply_data[0], prediction, os.path.join(result_path, os.path.basename(path)))
 
     print("oa:{:.2f} aa:{:.2f} miou:{:.2f}".format(np.mean(OA) * 100, np.mean(AA) * 100, np.mean(IOU) * 100))
 

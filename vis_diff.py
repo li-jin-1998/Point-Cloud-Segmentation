@@ -38,11 +38,15 @@ def toggle_vis(flag=0):
 
     for path in paths:
         if not os.path.exists(path):
-            print('The file not exist.')
+            print('The file {} not exist.'.format(path))
             return
         meshes.append(pv.read(path))
     display_multi_meshes(meshes, titles)
 
+
+def save_screenshot():
+    pl.screenshot('./screenshot.png')
+    print('save screenshot')
 
 if __name__ == '__main__':
     result_paths = glob.glob(r'./visualization/*')
@@ -52,5 +56,6 @@ if __name__ == '__main__':
     pl = pv.Plotter(shape=(1, 4))
     pl.set_background([0.9, 0.9, 0.9])
     pl.add_key_event("d", toggle_vis)
+    pl.add_key_event("s", save_screenshot)
     toggle_vis(0)
     pl.show()

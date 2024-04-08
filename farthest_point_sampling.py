@@ -1,6 +1,9 @@
 import numpy as np
 import pyvista as pv
 
+'''
+速度太慢
+'''
 
 def distance(point, points):
     distances = np.sum((points - point) ** 2, axis=1)

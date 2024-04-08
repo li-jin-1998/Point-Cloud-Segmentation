@@ -2,6 +2,7 @@
 visualization/
 save_weights/
 */__pycache__
+screenshot/
 log/
 *.ply
 

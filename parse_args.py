@@ -50,7 +50,6 @@ def parse_args():
     # Training parameters
     parser.add_argument("--num_classes", default=4, type=int, help="number of classes excluding background")
     parser.add_argument("--num_points", default=10000, type=int, help="number of points to train with")
-    # Improved clarity with explicit boolean default
     parser.add_argument("--train_with_color", default=1, type=int, help="whether to train with color")
     parser.add_argument("--num_trees", default=1, type=int, help="number of trees in the random forest")
 

@@ -11,6 +11,8 @@ def visualize_ply(file_path):
     p = pv.Plotter()
     p.add_mesh(mesh, style="points", rgb=True)
     p.show(cpos='xy')
+    # 捕获渲染结果并保存为图像文件
+    p.screenshot('screenshot.png')
 
 
 if __name__ == "__main__":
