@@ -19,7 +19,7 @@ def get_best_weight_path(args):
 
 def get_latest_weight_path(args):
     weights_path = "save_weights/{}_{}_{}_latest_model.pth".format(args.arch, args.train_with_color, args.num_points)
-    print(weights_path)
+    # print(weights_path)
     return weights_path
 
 
@@ -40,7 +40,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch training")
 
     # Model architecture
-    parser.add_argument('--arch', '-a', metavar='ARCH', default='SegBig',
+    parser.add_argument('--arch', '-a', metavar='ARCH', default='SegSmall',
                         help='Segmentation model architecture (SegSmall/SegBig)')
 
     # Data path with environment variable as default

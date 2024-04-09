@@ -9,11 +9,12 @@ green_to_label = {255: 2, 192: 3, 129: 1, 64: 0}
 
 
 def nearest_correspondence(pts_src, pts_dst, data_src, K=1):
-    indices = nearest_neighbors.knn(pts_src.copy(), pts_dst.copy(), K, omp=True)
+    indices = nearest_neighbors.knn(pts_src, pts_dst, K, omp=True)
     if K == 1:
         indices = indices.ravel()
         data_dst = data_src[indices]
     else:
+        # bug
         data_dst = data_src[indices].mean(1)
     return data_dst
 

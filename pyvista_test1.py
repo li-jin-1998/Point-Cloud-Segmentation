@@ -18,3 +18,5 @@ def visualize_ply(file_path):
 if __name__ == "__main__":
     file_path = './test2.ply'
     visualize_ply(file_path)
+    # mesh = pv.read(file_path)
+    # pv.plot(mesh.points, scalars=mesh.active_scalars, point_size=5,cpos='xy', style="points", rgb=True)

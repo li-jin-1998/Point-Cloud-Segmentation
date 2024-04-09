@@ -9,7 +9,6 @@ class VisualizationMeshes:
     """
     Visualize multiple meshes
     """
-
     def __init__(self, pred_paths, titles, num_meshes=3, point_size=3, opacity=1.0):
         self.pl = None
         self.meshes = []

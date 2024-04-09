@@ -14,7 +14,7 @@ from sklearn.neighbors import BallTree
 from tqdm import tqdm
 
 import utils.metrics as metrics
-from dataset import TeethDataset
+from dataset import PointCloudDataset
 from utils.process import load_seg, save_ply_property
 
 
@@ -92,7 +92,7 @@ def train(args):
     net.cuda()
     print("parameters", count_parameters(net))
 
-    ds = TeethDataset(data_train, data_num_train, labels, npoints=args.npoints)
+    ds = PointCloudDataset(data_train, data_num_train, labels, npoints=args.npoints)
     train_loader = torch.utils.data.DataLoader(ds, batch_size=args.batchsize, shuffle=True,
                                                num_workers=THREADS
                                                )
@@ -207,7 +207,7 @@ def val(args):
     net.cuda()
     net.eval()
 
-    ds = TeethDataset(os.path.join(args.dataset, 'test.h5'), npoints=args.npoints, num_iter_per_shape=args.ntree)
+    ds = PointCloudDataset(os.path.join(args.dataset, 'test.h5'), npoints=args.npoints, num_iter_per_shape=args.ntree)
     test_loader = torch.utils.data.DataLoader(ds, batch_size=args.batchsize, shuffle=False,
                                               num_workers=THREADS
                                               )

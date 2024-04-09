@@ -8,8 +8,8 @@ import tqdm
 
 import path_manager
 from parse_args import parse_args, get_model, get_best_weight_path
+from random_sampling import random_sample
 from utils.functions import read_ply, nearest_correspondence, compute_metrics
-from utils.process import save_ply_property
 
 
 def predict():
@@ -44,7 +44,8 @@ def predict():
             labels = read_ply(path.replace('.ply', '_label.ply'), is_label=True)[2]
             ply_data = read_ply(path)
             pts = ply_data[0]
-            choice = np.random.choice(ply_data[2], args.num_points, replace=True)
+            # choice = np.random.choice(ply_data[2], args.num_points, replace=True)
+            choice = random_sample(ply_data[2], args.num_points)
 
             pts = pts[choice]
 
@@ -70,7 +71,7 @@ def predict():
             AA.append(aa)
             IOU.append(iou)
 
-            save_ply_property(ply_data[0], prediction, os.path.join(result_path, os.path.basename(path)))
+            # save_ply_property(ply_data[0], prediction, os.path.join(result_path, os.path.basename(path)))
 
     print("oa:{:.2f} aa:{:.2f} miou:{:.2f}".format(np.mean(OA) * 100, np.mean(AA) * 100, np.mean(IOU) * 100))
 

@@ -7,7 +7,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 import torch
 import torch.utils.data
 
-from dataset import TeethDataset
+from dataset import PointCloudDataset
 from parse_args import parse_args, get_model, get_best_weight_path, get_latest_weight_path, get_device
 from utils.train_and_eval import train_one_epoch, create_lr_scheduler, evaluate
 
@@ -26,10 +26,10 @@ def train():
 
     batch_size = args.batch_size
     num_workers = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])
-    train_dataset = TeethDataset(os.path.join(args.data_path, 'train_color.h5'), num_points=args.num_points,
-                                 num_iter_per_shape=args.num_trees, train_with_color=args.train_with_color)
-    val_dataset = TeethDataset(os.path.join(args.data_path, 'test_color.h5'), num_points=args.num_points,
-                               num_iter_per_shape=args.num_trees, train_with_color=args.train_with_color)
+    train_dataset = PointCloudDataset(os.path.join(args.data_path, 'train_color.h5'), num_points=args.num_points,
+                                      num_iter_per_shape=args.num_trees, train_with_color=args.train_with_color)
+    val_dataset = PointCloudDataset(os.path.join(args.data_path, 'test_color.h5'), num_points=args.num_points,
+                                    num_iter_per_shape=args.num_trees, train_with_color=args.train_with_color)
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
                                                num_workers=num_workers)
@@ -47,8 +47,10 @@ def train():
 
     scaler = torch.cuda.amp.GradScaler() if args.amp else None
 
+    best_weight_path = get_best_weight_path(args)
+
     if args.resume:
-        weights_path = get_best_weight_path(args)
+        weights_path = best_weight_path
         checkpoint = torch.load(weights_path, map_location='cpu')
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
@@ -121,7 +123,7 @@ def train():
                      "args": args}
         if args.amp:
             save_file["scaler"] = scaler.state_dict()
-        torch.save(save_file, get_best_weight_path(args))
+        torch.save(save_file, best_weight_path)
 
     best_info = f"[epoch: {best_epoch}]\n" \
                 f"best_oa: {best_oa * 100:.2f}\n" \

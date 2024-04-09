@@ -9,6 +9,8 @@ from utils.functions import compute_metrics
 
 
 def criterion(output, target, loss_weight=None, num_classes: int = 3, label_smoothing: float = 0.1):
+    if loss_weight is None:
+        loss_weight = torch.ones(num_classes, device='cuda')
     # loss_weight = torch.as_tensor([1, 2, 2, 1], device="cuda")
     loss = cross_entropy(output.view(-1, num_classes), target.view(-1), weight=loss_weight,
                          label_smoothing=label_smoothing)
@@ -31,19 +33,19 @@ def evaluate(epoch_num, model, data_loader, device, num_classes):
             # print(output)
 
             loss = criterion(output, lbs, num_classes=num_classes)
-
             val_loss.append(loss.item())
-            output_np = output.argmax(2)
 
-            oa, aa, iou = compute_metrics(lbs.flatten().cpu(), output_np.flatten().cpu(), num_classes)
+            output_np = output.argmax(2).cpu().numpy()
+            lbs_np = lbs.cpu().numpy()
+
+            oa, aa, iou = compute_metrics(lbs_np.flatten(), output_np.flatten(), num_classes)
 
             OA.append(oa)
             AA.append(aa)
             IOU.append(iou)
 
-            data_loader.set_postfix(OA="{:.3f}".format(np.mean(OA)), AA="{:.3f}".format(np.mean(AA)),
-                                    IOU="{:.3f}".format(np.mean(IOU)))
-            data_loader.desc = "[val epoch {}] loss: {:.4f}".format(epoch_num, np.mean(val_loss))
+            data_loader.set_postfix(OA=f"{np.mean(OA):.3f}", AA=f"{np.mean(AA):.3f}", IOU=f"{np.mean(IOU):.3f}")
+            data_loader.desc = f"[val epoch {epoch_num}] loss: {np.mean(val_loss):.4f}"
 
     return np.mean(val_loss), np.mean(OA), np.mean(AA), np.mean(IOU)
 
@@ -79,16 +81,17 @@ def train_one_epoch(epoch_num, model, optimizer, data_loader, device, num_classe
         lr = optimizer.param_groups[0]["lr"]
         train_loss.append(loss.item())
 
-        output_np = output.argmax(2)
-        oa, aa, iou = compute_metrics(lbs.flatten().cpu(), output_np.flatten().cpu(), num_classes)
+        output_np = output.argmax(2).cpu().numpy()
+        lbs_np = lbs.cpu().numpy()
+
+        oa, aa, iou = compute_metrics(lbs_np.flatten(), output_np.flatten(), num_classes)
 
         OA.append(oa)
         AA.append(aa)
         IOU.append(iou)
 
-        data_loader.set_postfix(OA="{:.3f}".format(np.mean(OA)), AA="{:.3f}".format(np.mean(AA)),
-                                IOU="{:.3f}".format(np.mean(IOU)))
-        data_loader.desc = "[train epoch {}] loss: {:.4f}".format(epoch_num, np.mean(train_loss))
+        data_loader.set_postfix(OA=f"{np.mean(OA):.3f}", AA=f"{np.mean(AA):.3f}", IOU=f"{np.mean(IOU):.3f}")
+        data_loader.desc = f"[train epoch {epoch_num}] loss: {np.mean(train_loss):.4f}"
     # lr_scheduler.step()
 
     return np.mean(train_loss), np.mean(OA), np.mean(AA), np.mean(IOU), lr
@@ -115,6 +118,6 @@ def create_lr_scheduler(optimizer,
             return warmup_factor * (1 - alpha) + alpha
         else:
             # warmup后lr倍率因子从1 -> 0
-            return (1 - (x - warmup_epochs * num_step) / ((epochs - warmup_epochs) * num_step)) ** 0.9
+            return (1 - (x - warmup_epochs * num_step) / ((epochs - warmup_epochs) * num_step)) ** 0.95
 
     return torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=f)

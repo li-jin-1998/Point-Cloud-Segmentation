@@ -10,7 +10,7 @@ import torch.utils.data
 from utils.train_and_eval import evaluate
 from parse_args import parse_args, get_model, get_best_weight_path, get_device
 
-from dataset import TeethDataset
+from dataset import PointCloudDataset
 
 
 def val():
@@ -26,8 +26,8 @@ def val():
 
     batch_size = args.batch_size * 2
     num_workers = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])
-    val_dataset = TeethDataset(os.path.join(args.data_path, 'test_color.h5'), num_points=args.num_points,
-                               num_iter_per_shape=args.num_trees, train_with_color=args.train_with_color)
+    val_dataset = PointCloudDataset(os.path.join(args.data_path, 'test_color.h5'), num_points=args.num_points,
+                                    num_iter_per_shape=args.num_trees, train_with_color=args.train_with_color)
 
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False,
                                              num_workers=num_workers)

@@ -4,12 +4,13 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
+from random_sampling import random_sample
 from utils.process import load_seg
 
 torch.manual_seed(3407)
 
 
-class TeethDataset(Dataset):
+class PointCloudDataset(Dataset):
 
     def __init__(self, path, num_points, num_iter_per_shape=1, train_with_color=True):
         # Prepare inputs
@@ -30,7 +31,10 @@ class TeethDataset(Dataset):
 
         npts = self.points_num[index]
         pts = self.points[index, :npts]
-        choice = np.random.choice(npts, self.num_points, replace=True)
+
+        # choice = np.random.choice(npts, self.num_points, replace=True)
+        choice = random_sample(npts, self.num_points)
+
 
         pts = pts[choice]
         lbs = self.labels[index][choice]
@@ -61,8 +65,8 @@ if __name__ == '__main__':
     from parse_args import parse_args
 
     args = parse_args()
-    test_dataset = TeethDataset(os.path.join(args.data_path, 'test_color.h5'), num_points=args.num_points,
-                                train_with_color=True)
+    test_dataset = PointCloudDataset(os.path.join(args.data_path, 'test_color.h5'), num_points=args.num_points,
+                                     train_with_color=True)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False,
                                               num_workers=8)
 
