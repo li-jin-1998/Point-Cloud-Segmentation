@@ -49,7 +49,7 @@ def parse_args():
 
     # Training parameters
     parser.add_argument("--num_classes", default=4, type=int, help="number of classes excluding background")
-    parser.add_argument("--num_points", default=10000, type=int, help="number of points to train with")
+    parser.add_argument("--num_points", default=5000, type=int, help="number of points to train with")
     parser.add_argument("--train_with_color", default=1, type=int, help="whether to train with color")
     parser.add_argument("--num_trees", default=1, type=int, help="number of trees in the random forest")
 
@@ -57,7 +57,7 @@ def parse_args():
     parser.add_argument("-b", "--batch_size", default=16, type=int, help="batch size for training")
     parser.add_argument("--epochs", default=200, type=int, metavar="N", help="number of total epochs to train")
     parser.add_argument('--lr', default=1e-3, type=float, help='initial learning rate')
-    parser.add_argument('--resume', default=1, help='resume from checkpoint')
+    parser.add_argument('--resume', default=0, help='resume from checkpoint')
     parser.add_argument('--start_epoch', default=1, type=int, metavar='N', help='start epoch')
 
     # Model saving configuration

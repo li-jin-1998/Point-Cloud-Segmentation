@@ -46,7 +46,7 @@ def predict():
             pts = ply_data[0]
             # choice = np.random.choice(ply_data[2], args.num_points, replace=True)
             choice = random_sample(ply_data[2], args.num_points)
-
+            # print(ply_data[2], np.unique(choice).shape[0])
             pts = pts[choice]
 
             if args.train_with_color and len(ply_data[1]):

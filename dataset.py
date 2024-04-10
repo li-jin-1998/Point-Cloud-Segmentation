@@ -35,7 +35,6 @@ class PointCloudDataset(Dataset):
         # choice = np.random.choice(npts, self.num_points, replace=True)
         choice = random_sample(npts, self.num_points)
 
-
         pts = pts[choice]
         lbs = self.labels[index][choice]
 
@@ -71,9 +70,9 @@ if __name__ == '__main__':
                                               num_workers=8)
 
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
-    for pts, cls, lbs, indices in test_loader:
-        cls = cls.to(device)
-        pts = pts.to(device)
-        lbs = lbs.to(device)
+    for p, c, l, indices in test_loader:
+        c = c.to(device)
+        p = p.to(device)
+        l = l.to(device)
         # print(cls, lbs)
-        print(pts.shape, cls.shape, lbs.shape)
+        print(p.shape, c.shape, l.shape)
