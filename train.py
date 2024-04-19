@@ -27,9 +27,9 @@ def train():
     batch_size = args.batch_size
     num_workers = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])
     train_dataset = PointCloudDataset(os.path.join(args.data_path, 'train_color.h5'), num_points=args.num_points,
-                                      num_iter_per_shape=args.num_trees, train_with_color=args.train_with_color)
+                                      num_iter_per_shape=args.num_trees, use_color=args.use_color)
     val_dataset = PointCloudDataset(os.path.join(args.data_path, 'test_color.h5'), num_points=args.num_points,
-                                    num_iter_per_shape=args.num_trees, train_with_color=args.train_with_color)
+                                    num_iter_per_shape=args.num_trees, use_color=args.use_color)
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
                                                num_workers=num_workers)
@@ -37,7 +37,7 @@ def train():
                                              num_workers=num_workers)
 
     params_to_optimize = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.Adamax(params_to_optimize, lr=1e-3)
+    optimizer = torch.optim.Adamax(params_to_optimize, lr=args.lr, weight_decay=1e-4)
     # lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, last_epoch=-1, gamma=0.99, verbose=True)
     lr_scheduler = create_lr_scheduler(optimizer, len(train_loader), args.epochs, warmup=True, warmup_epochs=1)
     # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, MILESTONES)
@@ -104,26 +104,22 @@ def train():
 
         torch.save(model.state_dict(), get_latest_weight_path(args))
         if args.save_best is True:
-            format_string = "best epoch:{} oa:{:.2f} aa:{:.2f} miou:{:.2f}"
             if best_miou <= val_miou:
                 best_miou = val_miou
                 best_oa = val_oa
                 best_aa = val_aa
                 best_epoch = epoch_num
-                print(format_string.format(best_epoch, best_oa * 100, best_aa * 100, best_miou * 100))
-            else:
-                print(format_string.format(best_epoch, best_oa * 100, best_aa * 100, best_miou * 100))
-                continue
 
-        # save the model
-        save_file = {"model": model.state_dict(),
-                     "optimizer": optimizer.state_dict(),
-                     "lr_scheduler": lr_scheduler.state_dict(),
-                     "epoch": epoch_num,
-                     "args": args}
-        if args.amp:
-            save_file["scaler"] = scaler.state_dict()
-        torch.save(save_file, best_weight_path)
+            print(f"best epoch:{best_epoch} oa:{best_oa * 100:.2f} aa:{best_aa * 100:.2f} miou:{best_miou * 100:.2f}")
+            # save the model
+            save_file = {"model": model.state_dict(),
+                         "optimizer": optimizer.state_dict(),
+                         "lr_scheduler": lr_scheduler.state_dict(),
+                         "epoch": epoch_num,
+                         "args": args}
+            if args.amp:
+                save_file["scaler"] = scaler.state_dict()
+            torch.save(save_file, best_weight_path)
 
     best_info = f"[epoch: {best_epoch}]\n" \
                 f"best_oa: {best_oa * 100:.2f}\n" \

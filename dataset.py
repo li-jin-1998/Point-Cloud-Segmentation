@@ -12,7 +12,7 @@ torch.manual_seed(3407)
 
 class PointCloudDataset(Dataset):
 
-    def __init__(self, path, num_points, num_iter_per_shape=1, train_with_color=True):
+    def __init__(self, path, num_points, num_iter_per_shape=1, use_color=True):
         # Prepare inputs
         print('{}-Preparing datasets: {}'.format(datetime.datetime.now(), path))
         points, colors, labels, points_num = load_seg(path)
@@ -23,7 +23,7 @@ class PointCloudDataset(Dataset):
         self.colors = colors
 
         self.num_points = num_points
-        self.train_with_color = train_with_color
+        self.use_color = use_color
         self.num_iter_per_shape = num_iter_per_shape
 
     def __getitem__(self, index):
@@ -39,7 +39,7 @@ class PointCloudDataset(Dataset):
         lbs = self.labels[index][choice]
 
         # separate between features and points
-        if self.train_with_color and len(self.colors):
+        if self.use_color and len(self.colors):
             cls = self.colors[index][choice]
             cls = cls.astype(np.float32)
             # cls = cls / 255 - 0.5
@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
     args = parse_args()
     test_dataset = PointCloudDataset(os.path.join(args.data_path, 'test_color.h5'), num_points=args.num_points,
-                                     train_with_color=True)
+                                     use_color=True)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False,
                                               num_workers=8)
 

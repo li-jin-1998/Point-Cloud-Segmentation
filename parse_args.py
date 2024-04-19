@@ -12,13 +12,13 @@ def get_device():
 
 
 def get_best_weight_path(args):
-    weights_path = "save_weights/{}_{}_{}_best_model.pth".format(args.arch, args.train_with_color, args.num_points)
-    print(weights_path)
+    weights_path = "save_weights/{}_{}_{}_best_model.pth".format(args.arch, args.use_color, args.num_points)
+    print("load weight: ", weights_path)
     return weights_path
 
 
 def get_latest_weight_path(args):
-    weights_path = "save_weights/{}_{}_{}_latest_model.pth".format(args.arch, args.train_with_color, args.num_points)
+    weights_path = "save_weights/{}_{}_{}_latest_model.pth".format(args.arch, args.use_color, args.num_points)
     # print(weights_path)
     return weights_path
 
@@ -29,10 +29,10 @@ def get_model(args):
           .format(args.arch, args.epochs, args.batch_size, args.num_points))
     print('**************************')
     if args.arch == "SegSmall":
-        return SegSmall(input_channels=3 if args.train_with_color else 1, output_channels=args.num_classes).to(
+        return SegSmall(input_channels=3 if args.use_color else 1, output_channels=args.num_classes).to(
             get_device())
     if args.arch == "SegBig":
-        return SegBig(input_channels=3 if args.train_with_color else 1, output_channels=args.num_classes).to(
+        return SegBig(input_channels=3 if args.use_color else 1, output_channels=args.num_classes).to(
             get_device())
 
 
@@ -40,7 +40,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch training")
 
     # Model architecture
-    parser.add_argument('--arch', '-a', metavar='ARCH', default='SegSmall',
+    parser.add_argument('--arch', '-a', metavar='ARCH', default='SegBig',
                         help='Segmentation model architecture (SegSmall/SegBig)')
 
     # Data path with environment variable as default
@@ -49,8 +49,8 @@ def parse_args():
 
     # Training parameters
     parser.add_argument("--num_classes", default=4, type=int, help="number of classes excluding background")
-    parser.add_argument("--num_points", default=5000, type=int, help="number of points to train with")
-    parser.add_argument("--train_with_color", default=1, type=int, help="whether to train with color")
+    parser.add_argument("--num_points", default=10000, type=int, help="number of points to train with")
+    parser.add_argument("--use_color", default=1, type=int, help="whether to train with color")
     parser.add_argument("--num_trees", default=1, type=int, help="number of trees in the random forest")
 
     # Training configuration

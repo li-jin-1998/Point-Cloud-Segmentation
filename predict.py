@@ -49,7 +49,7 @@ def predict():
             # print(ply_data[2], np.unique(choice).shape[0])
             pts = pts[choice]
 
-            if args.train_with_color and len(ply_data[1]):
+            if args.use_color and len(ply_data[1]):
                 cls = ply_data[1][choice]
                 cls = cls.astype(np.float32)
                 # cls = cls / 255 - 0.5
@@ -62,6 +62,7 @@ def predict():
             output = model(torch.unsqueeze(cls, dim=0), torch.unsqueeze(pts, dim=0)).squeeze(0)
 
             # interpolate to original points
+            # prediction = ball_nearest_neighbors(pts.cpu().numpy(), ply_data[0], output)
             prediction = nearest_correspondence(pts.cpu().numpy(), ply_data[0], output)
             prediction = prediction.argmax(1).cpu().numpy()
 

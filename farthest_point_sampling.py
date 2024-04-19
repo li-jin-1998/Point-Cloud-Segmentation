@@ -49,9 +49,7 @@ def visualize_points(points):
 
 
 if __name__ == "__main__":
-    from utils.functions import read_ply
-
-    point_cloud, _, _ = read_ply('test2.ply')
+    point_cloud = pv.read('test2.ply').points
 
     # 采样后的点的数量
     num_points_sampled = 100

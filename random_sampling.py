@@ -14,6 +14,7 @@ def random_sample(num_points, num_choices):
         indices = np.random.choice(num_points, size=num_choices, replace=False)
     return indices
 
+
 if __name__ == '__main__':
     import pyvista as pv
 
@@ -43,5 +44,6 @@ if __name__ == '__main__':
     # pl.view_xy()
     # pl.show()
     from visualization import VisualizationPoints
+
     vis = VisualizationPoints(points_list=[points, sampled_points], colors_list=[colors, sampled_colors])
     vis.display()

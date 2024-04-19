@@ -27,7 +27,7 @@ def val():
     batch_size = args.batch_size * 2
     num_workers = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])
     val_dataset = PointCloudDataset(os.path.join(args.data_path, 'test_color.h5'), num_points=args.num_points,
-                                    num_iter_per_shape=args.num_trees, train_with_color=args.train_with_color)
+                                    num_iter_per_shape=args.num_trees, use_color=args.use_color)
 
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False,
                                              num_workers=num_workers)
