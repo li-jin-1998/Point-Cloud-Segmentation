@@ -18,7 +18,7 @@ def random_sample(num_points, num_choices):
 if __name__ == '__main__':
     import pyvista as pv
 
-    file_path = './test2.ply'
+    file_path = '../test2.ply'
     mesh = pv.read(file_path)
     points = mesh.points
     colors = mesh.active_scalars
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     # pl.add_title(str(sampled_points.shape[0]), font_size=20, font='times')
     # pl.view_xy()
     # pl.show()
-    from visualization import VisualizationPoints
+    from vis_tools.visualization import VisualizationPoints
 
     vis = VisualizationPoints(points_list=[points, sampled_points], colors_list=[colors, sampled_colors])
     vis.display()

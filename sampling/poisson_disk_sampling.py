@@ -125,7 +125,7 @@ def visualize_points(points):
 if __name__ == "__main__":
     from utils.functions import read_ply
 
-    point_cloud_3d, _, _ = read_ply('test.ply')
+    point_cloud_3d, _, _ = read_ply('../test.ply')
     # 投影到二维平面
     projected_points = project_to_2d(point_cloud_3d)
     print(projected_points.shape[0])

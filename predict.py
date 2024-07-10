@@ -6,9 +6,9 @@ import numpy as np
 import torch
 import tqdm
 
-import path_manager
 from parse_args import parse_args, get_model, get_best_weight_path
-from random_sampling import random_sample
+from sampling.random_sampling import random_sample
+from utils import path_manager
 from utils.functions import read_ply, nearest_correspondence, compute_metrics
 
 

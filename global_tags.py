@@ -1,4 +1,3 @@
-
 class GlobalTags:
     LEGACY_LAYER_BASE = False
 

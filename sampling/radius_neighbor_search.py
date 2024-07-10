@@ -1,7 +1,7 @@
 import pyvista as pv
 from sklearn.neighbors import KDTree
 
-file_path = './test2.ply'
+file_path = '../test2.ply'
 mesh = pv.read(file_path)
 points = mesh.points
 colors = mesh.active_scalars

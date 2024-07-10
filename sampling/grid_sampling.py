@@ -206,7 +206,7 @@ if __name__ == '__main__':
 
     from utils.functions import read_ply
 
-    file_path = './test2.ply'
+    file_path = '../test2.ply'
     ply_data = read_ply(file_path)
     points = ply_data[0]
     colors = ply_data[1]
@@ -239,7 +239,7 @@ if __name__ == '__main__':
     # pl.view_xy()
     # pl.show()
 
-    from visualization import VisualizationPoints
+    from vis_tools.visualization import VisualizationPoints
 
     vis = VisualizationPoints(points_list=[points, sampled_points], colors_list=[colors, sampled_colors])
     vis.display()

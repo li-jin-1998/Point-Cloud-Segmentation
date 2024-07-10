@@ -44,7 +44,7 @@ class VisualizationMeshes:
 
     def save_screenshot(self):
         # os.makedirs('./screenshot',exist_ok=True)
-        save_path = os.path.join('./screenshot', os.path.basename(self.pred_path)).replace('ply', 'png')
+        save_path = os.path.join('../screenshot', os.path.basename(self.pred_path)).replace('ply', 'png')
         if os.path.exists(save_path):
             os.remove(save_path)
         self.pl.screenshot(save_path)
@@ -58,7 +58,7 @@ class VisualizationMeshes:
         src_path = os.path.join('/mnt/algo_storage_server/PointCloudSeg/Dataset/data/',
                                 os.path.basename(self.pred_path))
         gt_path = src_path.replace('.ply', '_label.ply')
-        diff_path = os.path.join('./diff', os.path.basename(gt_path))
+        diff_path = os.path.join('../diff', os.path.basename(gt_path))
 
         paths = [src_path, gt_path, self.pred_path, diff_path]
         for path in paths:

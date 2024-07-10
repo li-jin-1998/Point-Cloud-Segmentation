@@ -2,7 +2,7 @@ import numpy as np
 import open3d as o3d
 import plyfile
 
-path = './test2.ply'
+path = '../test2.ply'
 plydata = plyfile.PlyData.read(path)
 print(plydata)
 # Get the number of points in the point cloud

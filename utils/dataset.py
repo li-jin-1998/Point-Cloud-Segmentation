@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-from random_sampling import random_sample
+from sampling.random_sampling import random_sample
 from utils.process import load_seg
 
 torch.manual_seed(3407)

@@ -14,7 +14,7 @@ from sklearn.neighbors import BallTree
 from tqdm import tqdm
 
 import utils.metrics as metrics
-from dataset import PointCloudDataset
+from utils.dataset import PointCloudDataset
 from utils.process import load_seg, save_ply_property
 
 

@@ -43,7 +43,7 @@ class VisualizationMeshes:
 
     def save_screenshot(self):
         # os.makedirs('./screenshot',exist_ok=True)
-        save_path = os.path.join('./screenshot', os.path.basename(self.pred_path)).replace('ply', 'png')
+        save_path = os.path.join('../screenshot', os.path.basename(self.pred_path)).replace('ply', 'png')
         if os.path.exists(save_path):
             os.remove(save_path)
         self.pl.screenshot(save_path)

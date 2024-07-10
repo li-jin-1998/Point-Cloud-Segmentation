@@ -160,7 +160,7 @@ def read_obj(filename):
 if __name__ == '__main__':
     import plyfile
 
-    path = './test.ply'
+    path = '../test.ply'
     plydata = plyfile.PlyData.read(path)
     # Get the number of points in the point cloud
     num_points = plydata['vertex'].count
