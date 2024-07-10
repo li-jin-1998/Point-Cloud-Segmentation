@@ -44,12 +44,12 @@ def parse_args():
                         help='Segmentation model architecture (SegSmall/SegBig)')
 
     # Data path with environment variable as default
-    parser.add_argument("--data_path", default='/mnt/algo_storage_server/PointCloudSeg/Dataset',
+    parser.add_argument("--data_path", default='/mnt/algo-storage-server/Projects/PointCloudSeg/Dataset',
                         help="root path to the dataset")
 
     # Training parameters
     parser.add_argument("--num_classes", default=4, type=int, help="number of classes excluding background")
-    parser.add_argument("--num_points", default=10000, type=int, help="number of points to train with")
+    parser.add_argument("--num_points", default=2000, type=int, help="number of points to train with")
     parser.add_argument("--use_color", default=1, type=int, help="whether to train with color")
     parser.add_argument("--num_trees", default=1, type=int, help="number of trees in the random forest")
 

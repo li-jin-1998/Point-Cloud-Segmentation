@@ -1,4 +1,5 @@
 .idea/
+dataset/
 visualization/
 save_weights/
 */__pycache__

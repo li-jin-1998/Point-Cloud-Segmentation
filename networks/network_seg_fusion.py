@@ -1,8 +1,10 @@
-from convpoint.nn import PtConv
-from convpoint.nn.utils import apply_bn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+from convpoint.nn import PtConv
+from convpoint.nn.utils import apply_bn
+
 
 class NetFusion(nn.Module):
     def __init__(self, input_channels, output_channels, dimension=3):
@@ -32,7 +34,7 @@ class NetFusion(nn.Module):
         xout = x2
         xout = torch.cat([xout, out1, out2], dim=2)
         xout = xout.view(-1, xout.size(2))
-        xou = self.drop(xout)
+        xout = self.drop(xout)
         xout = self.fcout(xout)
         xout = xout.view(x.size(0), -1, xout.size(1))
 
